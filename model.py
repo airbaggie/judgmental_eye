@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-import correlation
+# import correlation
 from collections import defaultdict
 
 db = SQLAlchemy()
