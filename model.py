@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-# import correlation
+import correlation
 from collections import defaultdict
 
 db = SQLAlchemy()
@@ -19,7 +19,37 @@ class User(db.Model):
     def predict_rating(self, movie):
         """Predict user's rating of a movies"""
 
-        return 'TODO'
+        # SQLAlchemy ORM
+        UserMovies = db.aliased(Rating)
+        MovieUsers = db.aliased(Rating)
+
+        query = (db.session.query(Rating.user_id, Rating.score, UserMovies.score, MovieUsers.score)
+                 .join(UserMovies, UserMovies.movie_id == Rating.movie_id)
+                 .join(MovieUsers, Rating.user_id == MovieUsers.user_id)
+                 .filter(UserMovies.user_id == self.user_id)
+                 .filter(MovieUsers.movie_id == movie.movie_id))
+        
+        known_ratings = {}
+        paired_ratings = defaultdict(list)
+
+        for rating_user_id, rating_score, user_movie_score, movie_user_score in query:
+            paired_ratings[rating_user_id].append((user_movie_score, rating_score))
+            known_ratings[rating_user_id] = movie_user_score
+
+        similarities = []
+
+        for _id, score in known_ratings.items():
+            similarity = correlation.pearson(paired_ratings[_id])
+            if similarity > 0:
+                similarities.append((similarity, score))
+
+        if not similarities:
+            return None
+
+        numerator = sum([score * sim for sim, score in similarities])
+        denominator = sum([sim for sim, score in similarities])
+
+        return numerator / denominator
 
 
 class Movie(db.Model):

@@ -76,3 +76,68 @@ if __name__ == "__main__":
     load_movies()
     load_ratings()
     set_val_user_id()
+
+    # Mimic what we did in the interpreter, and add the Eye and some ratings
+    eye = User(email="the-eye@of-judgment.com", password="evil")
+    db.session.add(eye)
+    db.session.commit()
+
+    # Toy Story
+    r = Rating(user_id=eye.user_id, movie_id=1, score=1)
+    db.session.add(r)
+
+    # Robocop 3
+    r = Rating(user_id=eye.user_id, movie_id=1274, score=5)
+    db.session.add(r)
+
+    # Judge Dredd
+    r = Rating(user_id=eye.user_id, movie_id=373, score=5)
+    db.session.add(r)
+
+    # 3 Ninjas
+    r = Rating(user_id=eye.user_id, movie_id=314, score=5)
+    db.session.add(r)
+
+    # Aladdin
+    r = Rating(user_id=eye.user_id, movie_id=95, score=1)
+    db.session.add(r)
+
+    # The Lion King
+    r = Rating(user_id=eye.user_id, movie_id=71, score=1)
+    db.session.add(r)
+
+    db.session.commit()
+    
+    # Add our user
+    jessica = User(email="jessica@gmail.com",
+                   password="love",
+                   age=42,
+                   zipcode="94114")
+    db.session.add(jessica)
+    db.session.commit()
+
+    # Toy Story
+    r = Rating(user_id=jessica.user_id, movie_id=1, score=5)
+    db.session.add(r)
+
+    # Robocop 3
+    r = Rating(user_id=jessica.user_id, movie_id=1274, score=1)
+    db.session.add(r)
+
+    # Judge Dredd
+    r = Rating(user_id=jessica.user_id, movie_id=373, score=1)
+    db.session.add(r)
+
+    # 3 Ninjas
+    r = Rating(user_id=jessica.user_id, movie_id=314, score=1)
+    db.session.add(r)
+
+    # Aladdin
+    r = Rating(user_id=jessica.user_id, movie_id=95, score=5)
+    db.session.add(r)
+
+    # The Lion King
+    r = Rating(user_id=jessica.user_id, movie_id=71, score=5)
+    db.session.add(r)
+
+    db.session.commit()

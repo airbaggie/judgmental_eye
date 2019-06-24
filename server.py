@@ -42,20 +42,45 @@ def movie_detail(movie_id):
     avg_rating = float(sum(rating_scores)) / len(rating_scores)
 
     prediction = None
-    eye_rating = None
-    difference = None
-    beratement = None
+
+    # Only predict if the user hasn't rated it
+    if (not user_rating) and user_id:
+        user = User.query.get(user_id)
+        if user:
+            prediction = user.predict_rating(movie)
+
+    # Either use the prediction or their real rating
+    if prediction:
+        effective_rating = prediction
+    elif user_rating:
+        effective_rating = user_rating.score
+    else:
+        effective_rating = None
+
+    # Get the eye's rating, either by predicting or using real rating
+    the_eye = User.query.filter_by(email="the-eye@of-judgment.com").one()
+    eye_rating = Rating.query.filter_by(
+        user_id=the_eye.user_id, movie_id=movie.movie_id).first()
+
+    if eye_rating is None:
+        eye_rating = the_eye.predict_rating(movie)
+    else:
+        eye_rating = eye_rating.score
+
+    if eye_rating and effective_rating:
+        difference = abs(eye_rating - effective_rating)
+    else:
+        difference = None
 
     return render_template(
-        "movie.html",
-        movie=movie,
-        user_rating=user_rating,
-        average=avg_rating,
-        prediction=prediction,
-        eye_rating=eye_rating,
-        difference=difference,
-        beratement=beratement
-        )
+                            "movie.html",
+                            movie=movie,
+                            user_rating=user_rating,
+                            average=avg_rating,
+                            prediction=prediction,
+                            eye_rating=eye_rating,
+                            difference=difference
+                          )
 
 
 @app.route('/movies/<int:movie_id>', methods=['POST'])
